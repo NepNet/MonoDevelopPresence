@@ -1,17 +1,10 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ExtensionModel>
-    <Runtime>
-		<Import assembly="MonoDevelopRPC.dll"/>
-    </Runtime>
+	
+	<!--<Extension path="/MonoDevelop/Ide/MainMenu/Tools/">
+	</Extension>-->
 	
 	<Extension path="/MonoDevelop/Ide/StartupHandlers">
 		<Class class="RPCInit"></Class>
 	</Extension>
-	
-	<Extension path="/MonoDevelop/Ide/MainMenu">
-		<ItemSet id="DRPC" _label="Rich Presence" insertafter="Tools">
-			<CommandItem id="StartRPC" _label="WTF">...</CommandItem>
-			<SeparatorItem/>
-		</ItemSet>
-    </Extension>
 </ExtensionModel>
