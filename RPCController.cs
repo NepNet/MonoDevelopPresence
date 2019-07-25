@@ -36,20 +36,15 @@ namespace MonoDevelopRPC
 		[CommandHandler("StartRPC")]
 		public static void StartRPC()
 		{
-			var workspace = MonoDevelop.Ide.IdeApp.Workspace;
-
-			workspace.SolutionUnloaded += Workspace_SolutionUnloaded;
+			MonoDevelop.Ide.IdeApp.Workspace.SolutionLoaded += Workspace_SolutionLoaded;
+			MonoDevelop.Ide.IdeApp.Workspace.SolutionUnloaded += Workspace_SolutionUnloaded;
 			MonoDevelop.Ide.IdeApp.ProjectOperations.CurrentProjectChanged += ProjectOperations_CurrentProjectChanged;
 			MonoDevelop.Ide.IdeApp.Workbench.ActiveDocumentChanged += Workbench_ActiveDocumentChanged;
+			MonoDevelop.Ide.IdeApp.Workspace.FileRenamedInProject += Workspace_FileRenamedInProject;
 
 			using (client = new DiscordRpcClient("595335536802267187"))
 			{
-				client.RegisterUriScheme();
-
-				presence.Timestamps = new Timestamps()
-				{
-					Start = DateTime.UtcNow,
-				};
+				//client.RegisterUriScheme();
 
 				client.SetPresence(presence);
 
@@ -57,18 +52,21 @@ namespace MonoDevelopRPC
 
 				while (client != null && isRunning)
 				{
-					Thread.Sleep(25);
+					Thread.Sleep(250);
 
 					client.SetPresence(presence);
 				}
 
 			}
 
+			void Workspace_FileRenamedInProject(object sender, MonoDevelop.Projects.ProjectFileRenamedEventArgs e)
+			{
+				Workbench_ActiveDocumentChanged(null, EventArgs.Empty);
+			}
 
 			void Workbench_ActiveDocumentChanged(object sender, EventArgs e)
 			{
 				var ActiveDocument = MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument;
-
 				if (ActiveDocument != null)
 				{
 					presence.Assets.LargeImageKey = GetIcon(ActiveDocument.FileName);
@@ -82,6 +80,11 @@ namespace MonoDevelopRPC
 				{
 					presence.Details = e.Project.Name;
 				}
+			}
+
+			void Workspace_SolutionLoaded(object sender, MonoDevelop.Projects.SolutionEventArgs e)
+			{
+				presence.Timestamps = new Timestamps(DateTime.UtcNow);
 			}
 
 			void Workspace_SolutionUnloaded(object sender, MonoDevelop.Projects.SolutionEventArgs e)
@@ -98,7 +101,6 @@ namespace MonoDevelopRPC
 				client.SetPresence(presence);
 			}
 		}
-
 
 		internal static string GetIcon(MonoDevelop.Core.FilePath document)
 		{
