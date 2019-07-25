@@ -11,6 +11,3 @@ using Mono.Addins.Description;
 [assembly: AddinCategory("IDE extensions")]
 [assembly: AddinDescription("Adds Discord Rich Presence")]
 [assembly: AddinAuthor("NepNet")]
-
-[assembly: AddinDependency("::MonoDevelop.Core", MonoDevelop.BuildInfo.Version)]
-[assembly: AddinDependency("::MonoDevelop.Ide", MonoDevelop.BuildInfo.Version)]
