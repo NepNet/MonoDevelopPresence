@@ -111,7 +111,7 @@ namespace MonoDevelopRPC
 		}
 		private static List<string> SupportedFiles = new List<string>()
 		{
-			".cs",".xml",".c",".cpp",".h",".txt",".md"
+			".cs",".xml",".c",".cpp",".h",".txt",".md",".css",".html"
 		};
 	}
 }
