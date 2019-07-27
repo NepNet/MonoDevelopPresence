@@ -4,7 +4,7 @@ using Mono.Addins.Description;
 [assembly: Addin(
     "MonoDevelopRPC",
     Namespace = "MonoDevelopRPC",
-    Version = "0.2"
+    Version = "0.3"
 )]
 
 [assembly: AddinName("MonoDevelopRPC")]

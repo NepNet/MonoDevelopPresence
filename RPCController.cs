@@ -4,6 +4,7 @@ using System.Threading;
 using MonoDevelop.Components.Commands;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.IO;
 
 namespace MonoDevelopRPC
 {
@@ -21,7 +22,7 @@ namespace MonoDevelopRPC
 	public static class RPCController
 	{
 		private static DiscordRpcClient client;
-		private static bool isRunning = true;
+		private static bool isRunning;
 
 		internal static RichPresence presence = new RichPresence()
 		{
@@ -36,16 +37,21 @@ namespace MonoDevelopRPC
 		[CommandHandler("StartRPC")]
 		public static void StartRPC()
 		{
+			RPC_Config.Load();
+			if (RPC_Config.Current.LoadOnStart && RPC_Config.Current.Enabled)
+			{
+				isRunning = true;
+			}
+			else
+				return;
+
 			MonoDevelop.Ide.IdeApp.Workspace.SolutionLoaded += Workspace_SolutionLoaded;
 			MonoDevelop.Ide.IdeApp.Workspace.SolutionUnloaded += Workspace_SolutionUnloaded;
-			MonoDevelop.Ide.IdeApp.ProjectOperations.CurrentProjectChanged += ProjectOperations_CurrentProjectChanged;
 			MonoDevelop.Ide.IdeApp.Workbench.ActiveDocumentChanged += Workbench_ActiveDocumentChanged;
 			MonoDevelop.Ide.IdeApp.Workspace.FileRenamedInProject += Workspace_FileRenamedInProject;
 
 			using (client = new DiscordRpcClient("595335536802267187"))
 			{
-				//client.RegisterUriScheme();
-
 				client.SetPresence(presence);
 
 				client.Initialize();
@@ -61,30 +67,56 @@ namespace MonoDevelopRPC
 
 			void Workspace_FileRenamedInProject(object sender, MonoDevelop.Projects.ProjectFileRenamedEventArgs e)
 			{
-				Workbench_ActiveDocumentChanged(null, EventArgs.Empty);
+				if (RPC_Config.Current.ShowFileName)
+				{
+					var document = MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument;
+					string path = Environment.SpecialFolder.Desktop + "/log.txt";
+
+					if (document != null)
+					{
+						foreach (var item in e)
+						{
+							if (item.OldName.FileName == document.FileName.FileName)
+							{
+								if (RPC_Config.Current.ShowFileIcon)
+								{
+									presence.Assets.LargeImageKey = GetIcon(item.NewName);
+								}
+								presence.State = $"Editing {item.NewName.FileName}";
+								break;
+							}
+						}
+					}
+				}
 			}
 
 			void Workbench_ActiveDocumentChanged(object sender, EventArgs e)
 			{
-				var ActiveDocument = MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument;
-				if (ActiveDocument != null)
+				if (RPC_Config.Current.ShowFileName)
 				{
-					presence.Assets.LargeImageKey = GetIcon(ActiveDocument.FileName);
-					presence.State = $"Editing {ActiveDocument.FileName.FileName}";
-				}
-			}
-
-			void ProjectOperations_CurrentProjectChanged(object sender, MonoDevelop.Projects.ProjectEventArgs e)
-			{
-				if (e.Project != null)
-				{
-					presence.Details = e.Project.Name;
+					if (RPC_Config.Current.ResetTimeOnFileChange && RPC_Config.Current.ShowTime)
+					{
+						presence.Timestamps = new Timestamps(DateTime.UtcNow);
+					}
+					var document = MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument;
+					if (document != null)
+					{
+						if (RPC_Config.Current.ShowFileIcon)
+						{
+							presence.Assets.LargeImageKey = GetIcon(document.FileName);
+						}
+						presence.State = $"Editing {document.FileName.FileName}";
+					}
 				}
 			}
 
 			void Workspace_SolutionLoaded(object sender, MonoDevelop.Projects.SolutionEventArgs e)
 			{
-				presence.Timestamps = new Timestamps(DateTime.UtcNow);
+				if (RPC_Config.Current.ShowTime)
+					presence.Timestamps = new Timestamps(DateTime.UtcNow);
+					
+				presence.Details = RPC_Config.Current.ShowSolutionName ? e.Solution.Name : "";
+
 			}
 
 			void Workspace_SolutionUnloaded(object sender, MonoDevelop.Projects.SolutionEventArgs e)
