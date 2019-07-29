@@ -4,7 +4,6 @@ using System.Threading;
 using MonoDevelop.Components.Commands;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.IO;
 
 namespace MonoDevelopRPC
 {
@@ -34,14 +33,28 @@ namespace MonoDevelopRPC
 			}
 		};
 
-		[CommandHandler("StartRPC")]
+		internal static void UpdatePresence()
+		{
+			RichPresence prc = new RichPresence()
+			{
+				Details = (RPC_Config.Current.ShowSolutionName) ? presence.Details : "",
+				State = (RPC_Config.Current.ShowFileName) ? presence.State : "",
+				Timestamps = (RPC_Config.Current.ShowTime) ? presence.Timestamps : null,
+				Assets = (RPC_Config.Current.ShowFileIcon) ? presence.Assets : null
+			};
+			client.SetPresence(prc);
+		}
+
+		public static void StopRPC()
+		{
+			client.Deinitialize();
+			client = null;
+		}
 		public static void StartRPC()
 		{
 			RPC_Config.Load();
 			if (RPC_Config.Current.LoadOnStart && RPC_Config.Current.Enabled)
-			{
 				isRunning = true;
-			}
 			else
 				return;
 
@@ -56,35 +69,29 @@ namespace MonoDevelopRPC
 
 				client.Initialize();
 
-				while (client != null && isRunning)
+				while (client != null)
 				{
 					Thread.Sleep(250);
 
-					client.SetPresence(presence);
+					UpdatePresence();
 				}
 
 			}
 
 			void Workspace_FileRenamedInProject(object sender, MonoDevelop.Projects.ProjectFileRenamedEventArgs e)
 			{
-				if (RPC_Config.Current.ShowFileName)
-				{
-					var document = MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument;
-					string path = Environment.SpecialFolder.Desktop + "/log.txt";
+				var document = MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument;
+				string path = Environment.SpecialFolder.Desktop + "/log.txt";
 
-					if (document != null)
+				if (document != null)
+				{
+					foreach (var item in e)
 					{
-						foreach (var item in e)
+						if (item.OldName.FileName == document.FileName.FileName)
 						{
-							if (item.OldName.FileName == document.FileName.FileName)
-							{
-								if (RPC_Config.Current.ShowFileIcon)
-								{
-									presence.Assets.LargeImageKey = GetIcon(item.NewName);
-								}
-								presence.State = $"Editing {item.NewName.FileName}";
-								break;
-							}
+							presence.Assets.LargeImageKey = GetIcon(item.NewName);
+							presence.State = $"Editing {item.NewName.FileName}";
+							break;
 						}
 					}
 				}
@@ -92,30 +99,24 @@ namespace MonoDevelopRPC
 
 			void Workbench_ActiveDocumentChanged(object sender, EventArgs e)
 			{
-				if (RPC_Config.Current.ShowFileName)
+				if (RPC_Config.Current.ResetTimeOnFileChange)
 				{
-					if (RPC_Config.Current.ResetTimeOnFileChange && RPC_Config.Current.ShowTime)
-					{
-						presence.Timestamps = new Timestamps(DateTime.UtcNow);
-					}
-					var document = MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument;
-					if (document != null)
-					{
-						if (RPC_Config.Current.ShowFileIcon)
-						{
-							presence.Assets.LargeImageKey = GetIcon(document.FileName);
-						}
-						presence.State = $"Editing {document.FileName.FileName}";
-					}
+					presence.Timestamps = new Timestamps(DateTime.UtcNow);
+				}
+				var document = MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument;
+				if (document != null)
+				{
+					presence.Assets.LargeImageKey = GetIcon(document.FileName);
+					presence.State = $"Editing {document.FileName.FileName}";
+
 				}
 			}
 
 			void Workspace_SolutionLoaded(object sender, MonoDevelop.Projects.SolutionEventArgs e)
 			{
-				if (RPC_Config.Current.ShowTime)
-					presence.Timestamps = new Timestamps(DateTime.UtcNow);
+				presence.Timestamps = new Timestamps(DateTime.UtcNow);
 					
-				presence.Details = RPC_Config.Current.ShowSolutionName ? e.Solution.Name : "";
+				presence.Details = e.Solution.Name;
 
 			}
 

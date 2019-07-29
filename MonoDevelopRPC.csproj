@@ -11,6 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="File.cs" />
+    <None Remove="Assets\Logo.jpg" />
   </ItemGroup>
   <ItemGroup>
     <None Update="DiscordRPC.dll">

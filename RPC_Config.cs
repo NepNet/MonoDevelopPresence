@@ -6,9 +6,19 @@ namespace MonoDevelopRPC
 {
 	public class RPC_Config
 	{
-		public static RPC_Config Current = new RPC_Config();
+		private static RPC_Config _current;
 
-		public bool Enabled = true;
+		public static RPC_Config Current 
+		{
+			get
+			{
+				if (_current == null)
+					_current = new RPC_Config();
+				return _current;
+			}
+		}
+
+		public bool Enabled = false;
 		public bool ShowFileName = true;
 		public bool ShowSolutionName = true;
 		public bool ShowTime = true;
@@ -30,7 +40,7 @@ namespace MonoDevelopRPC
 
 			using (var sr = new StreamReader(FilePath))
 			{
-				Current = (RPC_Config)xs.Deserialize(sr);
+				_current = (RPC_Config)xs.Deserialize(sr);
 			}
 		}
 
@@ -44,5 +54,10 @@ namespace MonoDevelopRPC
 			}
 		}
 
+
+		public void Configure()
+		{
+
+		}
 	}
 }

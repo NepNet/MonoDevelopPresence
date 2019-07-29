@@ -1,8 +1,53 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ExtensionModel>
+	<Extension path="/MonoDevelop/Ide/Commands">
+		<Command id = "MonoDevelopRPC.RPCCommands.Configure"
+				 _label = "Configure Rich Presence"
+				 _description = "Configure Rich Presence" 
+				 defaultHandler="MonoDevelopRPC.ConfigureHandler" />
+	</Extension>
 	
-	<!--<Extension path="/MonoDevelop/Ide/MainMenu/Tools/">
-	</Extension>-->
+	<Extension path="/MonoDevelop/Ide/Commands">
+		<Command id = "MonoDevelopRPC.RPCCommands.Enable"
+				 type="check"
+				 _label = "Enabled"
+				 defaultHandler="MonoDevelopRPC.EnableRPCHandler"/>
+		<Command id = "MonoDevelopRPC.RPCCommands.ShowFile"
+				 type="check"
+				 _label = "Show current file"
+				 defaultHandler="MonoDevelopRPC.ShowFileRPCHandler" />
+		<Command id = "MonoDevelopRPC.RPCCommands.ShowSolution"
+				 type="check"
+				 _label = "Show current solution"
+				 defaultHandler="MonoDevelopRPC.ShowSolutionRPCHandler" />
+		<Command id = "MonoDevelopRPC.RPCCommands.ShowTimer"
+				 type="check"
+				 _label = "Show elapsed time"
+				 defaultHandler="MonoDevelopRPC.ShowTimerRPCHandler" />
+		<Command id = "MonoDevelopRPC.RPCCommands.ResetTimer"
+				 type="check"
+				 _label = "Reset timer on file changed"
+				 defaultHandler="MonoDevelopRPC.ResetTimerRPCHandler" />
+		<Command id = "MonoDevelopRPC.RPCCommands.ShowIcon"
+				 type="check"
+				 _label = "Show file icon"
+				 defaultHandler="MonoDevelopRPC.ShowIconRPCHandler" />
+	</Extension>
+	
+	<Extension path="/MonoDevelop/Ide/MainMenu">
+		<ItemSet id="rpc" _label="Rich Presence" insertafter="Tools">
+			<CommandItem id="MonoDevelopRPC.RPCCommands.Enable"/>
+			<CommandItem id="MonoDevelopRPC.RPCCommands.ShowFile"/>
+			<CommandItem id="MonoDevelopRPC.RPCCommands.ShowSolution"/>
+			<CommandItem id="MonoDevelopRPC.RPCCommands.ShowTimer"/>
+			<CommandItem id="MonoDevelopRPC.RPCCommands.ResetTimer"/>
+			<CommandItem id="MonoDevelopRPC.RPCCommands.ShowIcon"/>
+			
+			<CommandItem id="MonoDevelopRPC.RPCCommands.Configure"/>
+		</ItemSet>
+	</Extension>
+
+	
 	
 	<Extension path="/MonoDevelop/Ide/StartupHandlers">
 		<Class class="RPCInit"></Class>
