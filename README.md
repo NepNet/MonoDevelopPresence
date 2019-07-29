@@ -1,4 +1,12 @@
 # MonoDevelopRPC
-Discord Rich Presence Addin for MonoDevelop
+Discord Rich Presence for MonoDevelop
 
-It's a simple extension for MonoDevelop that adds Discord Rich presence
+
+## Disabled by default. Go to *Rich Presence* and check Enabled
+
+This extensions adds Discord rich presence integration
+
+You can download the already built extension from the releases tab
+
+Supported files: .cs, .xml, .c, .cpp, .h, .txt, .css, .html
+For the rest file types it will be shown a generic file icon
