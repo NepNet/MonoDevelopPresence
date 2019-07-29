@@ -12,7 +12,9 @@ namespace MonoDevelopRPC
 	{
 		protected override void Run()
 		{
-			Task.Run(() => RPCController.StartRPC());
+			RPC_Config.Load();
+			if (RPC_Config.Current.Enabled)
+				Task.Run(() => RPCController.StartRPC());
 		}
 	}
 
@@ -21,7 +23,6 @@ namespace MonoDevelopRPC
 	public static class RPCController
 	{
 		private static DiscordRpcClient client;
-		private static bool isRunning;
 
 		internal static RichPresence presence = new RichPresence()
 		{
@@ -47,16 +48,13 @@ namespace MonoDevelopRPC
 
 		public static void StopRPC()
 		{
+			client.ClearPresence();
 			client.Deinitialize();
 			client = null;
 		}
 		public static void StartRPC()
 		{
 			RPC_Config.Load();
-			if (RPC_Config.Current.LoadOnStart && RPC_Config.Current.Enabled)
-				isRunning = true;
-			else
-				return;
 
 			MonoDevelop.Ide.IdeApp.Workspace.SolutionLoaded += Workspace_SolutionLoaded;
 			MonoDevelop.Ide.IdeApp.Workspace.SolutionUnloaded += Workspace_SolutionUnloaded;
@@ -81,8 +79,6 @@ namespace MonoDevelopRPC
 			void Workspace_FileRenamedInProject(object sender, MonoDevelop.Projects.ProjectFileRenamedEventArgs e)
 			{
 				var document = MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument;
-				string path = Environment.SpecialFolder.Desktop + "/log.txt";
-
 				if (document != null)
 				{
 					foreach (var item in e)

@@ -8,19 +8,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MonoDevelop.Addins" Version="0.4.7" />
+    <PackageReference Include="DiscordRichPresence" Version="1.0.115" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="File.cs" />
     <None Remove="Assets\Logo.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="DiscordRPC.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="DiscordRPC">
-      <HintPath>DiscordRPC.dll</HintPath>
-    </Reference>
+    <None Remove="DiscordRPC.dll" />
   </ItemGroup>
 </Project>
